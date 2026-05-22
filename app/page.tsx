@@ -5,6 +5,7 @@ import BurgerBuild from '@/components/BurgerBuild'
 import MenuGrid from '@/components/MenuGrid'
 import SocialProof from '@/components/SocialProof'
 import OrderCTA from '@/components/OrderCTA'
+import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
       <MenuGrid />
       <SocialProof />
       <OrderCTA />
+      <Footer />
     </main>
   )
 }

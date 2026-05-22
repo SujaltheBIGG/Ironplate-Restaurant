@@ -169,69 +169,6 @@ export default function OrderCTA() {
           </p>
         </div>
       </section>
-
-      {/* Footer strip */}
-      <div
-        style={{
-          background: '#080808',
-          borderTop: '1px solid var(--iron-border)',
-          padding: '24px clamp(24px, 4vw, 48px)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 16,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 18,
-            color: 'var(--iron-cream)',
-            letterSpacing: 4,
-          }}
-        >
-          IRON<span style={{ color: 'var(--iron-orange)' }}>PLATE</span>™
-        </span>
-
-        <p
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 13,
-            color: 'var(--iron-muted)',
-            textAlign: 'center',
-          }}
-        >
-          © 2025 IRONPLATE™ · Shoreditch, London · All rights reserved
-        </p>
-
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          {/* Instagram */}
-          <button
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.6, transition: 'opacity 0.2s ease', color: 'var(--iron-cream)' }}
-            onMouseOver={(e) => (e.currentTarget.style.opacity = '1')}
-            onMouseOut={(e) => (e.currentTarget.style.opacity = '0.6')}
-            aria-label="Instagram"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <circle cx="12" cy="12" r="4" />
-              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-            </svg>
-          </button>
-          {/* X / Twitter */}
-          <button
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.6, transition: 'opacity 0.2s ease', color: 'var(--iron-cream)' }}
-            onMouseOver={(e) => (e.currentTarget.style.opacity = '1')}
-            onMouseOut={(e) => (e.currentTarget.style.opacity = '0.6')}
-            aria-label="X"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
-          </button>
-        </div>
-      </div>
     </>
   )
 }
