@@ -16,30 +16,42 @@ export default function HeroSection() {
   const scrollToOrder = () =>
     document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })
 
-  // Preload all frames into memory
+  // Lazy load frames on demand instead of preloading all
   useEffect(() => {
-    const loadImages = async () => {
-      const loadedImages: HTMLImageElement[] = []
-      const imagePromises: Promise<void>[] = []
+    const loadImage = (index: number): HTMLImageElement => {
+      const frameNumber = (startFrameNumber + index).toString().padStart(8, '0')
+      const img = new Image()
+      img.src = `/jpeg-frames/Website Animation${frameNumber}.jpg`
+      return img
+    }
 
-      for (let i = 0; i < totalFrames; i++) {
-        const frameNumber = (startFrameNumber + i).toString().padStart(8, '0')
-        const img = new Image()
+    // Preload first 10 frames for immediate display, rest will load on demand
+    const initialLoad = async () => {
+      const loadedImages: HTMLImageElement[] = []
+      const promises: Promise<void>[] = []
+
+      for (let i = 0; i < Math.min(10, totalFrames); i++) {
+        const img = loadImage(i)
         const promise = new Promise<void>((resolve) => {
           img.onload = () => resolve()
-          img.onerror = () => resolve() // Continue even if some frames fail
-          img.src = `/jpeg-frames/Website Animation${frameNumber}.jpg`
+          img.onerror = () => resolve()
         })
-        imagePromises.push(promise)
+        promises.push(promise)
         loadedImages.push(img)
       }
 
-      await Promise.all(imagePromises)
+      await Promise.all(promises)
+      
+      // Fill remaining slots with empty images that will load on demand
+      for (let i = 10; i < totalFrames; i++) {
+        loadedImages.push(loadImage(i))
+      }
+
       imagesRef.current = loadedImages
       setImagesLoaded(true)
     }
 
-    loadImages()
+    initialLoad()
   }, [totalFrames, startFrameNumber])
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
-import { motion } from "motion/react";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
 import TextReveal from "@/components/TextReveal";
 
 const testimonials = [
@@ -69,18 +70,24 @@ export const TestimonialsColumn = (props: {
   testimonials: typeof testimonials;
   duration?: number;
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const duration = (props.duration || 10) * 1000;
+    gsap.to(containerRef.current, {
+      y: "-50%",
+      duration: duration / 1000,
+      repeat: -1,
+      ease: "none",
+    });
+  }, [props.duration]);
+
   return (
-    <div className={props.className} style={{ flex: 1, minWidth: 0 }}>
-      <motion.div
-        animate={{
-          translateY: "-50%",
-        }}
-        transition={{
-          duration: props.duration || 10,
-          repeat: Infinity,
-          ease: "linear",
-          repeatType: "loop",
-        }}
+    <div className={props.className} style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+      <div
+        ref={containerRef}
         className="flex flex-col gap-6 pb-6"
         style={{ willChange: 'transform' }}
       >
@@ -149,7 +156,7 @@ export const TestimonialsColumn = (props: {
             </React.Fragment>
           )),
         ]}
-      </motion.div>
+      </div>
     </div>
   );
 };
