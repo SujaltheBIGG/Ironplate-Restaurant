@@ -1,105 +1,269 @@
 'use client'
 
-const NAV_COL1 = ['Order Now', 'Our Menu', 'Our Story', 'Find Us', 'Contact']
-const NAV_COL2 = ['Delivery Info', 'Allergens', 'Nutrition Info']
-const CONTACT_LINES = ['hello@ironplate.co', '+44 20 7946 0123', '14 Bethnal Green Road', 'Shoreditch, London E1 6GY']
-const SOCIAL = ['Instagram', 'X (Twitter)', 'TikTok']
+import { useEffect, useRef } from 'react'
 
-const gridSvg = `<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg"><path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.5"/><line x1="0" y1="0" x2="7" y2="0" stroke="rgba(255,255,255,0.18)" stroke-width="1"/><line x1="73" y1="0" x2="80" y2="0" stroke="rgba(255,255,255,0.18)" stroke-width="1"/><line x1="0" y1="0" x2="0" y2="7" stroke="rgba(255,255,255,0.18)" stroke-width="1"/><line x1="0" y1="73" x2="0" y2="80" stroke="rgba(255,255,255,0.18)" stroke-width="1"/></svg>`
+/* ── data ── */
+const NAV_LINKS = ['Home', 'About Us', 'Community', 'Menu']
+const ACCOUNT_LINKS = ['Login', 'Register']
+const SOCIAL_LINKS = ['Facebook', 'Instagram', 'Tiktok']
 
-const muted: React.CSSProperties = { fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--iron-muted)', lineHeight: 2.1, display: 'block', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left', transition: 'color 0.2s ease' }
+/* ── grid SVG background ── */
+const gridSvg = `<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg"><path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/><line x1="0" y1="0" x2="6" y2="0" stroke="rgba(255,255,255,0.14)" stroke-width="1"/><line x1="74" y1="0" x2="80" y2="0" stroke="rgba(255,255,255,0.14)" stroke-width="1"/><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(255,255,255,0.14)" stroke-width="1"/><line x1="0" y1="74" x2="0" y2="80" stroke="rgba(255,255,255,0.14)" stroke-width="1"/></svg>`
 
 export default function Footer() {
+  const footerRef = useRef<HTMLElement>(null)
+
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
-  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-  const hover = (e: React.MouseEvent<HTMLElement>, on: boolean) => { (e.currentTarget as HTMLElement).style.color = on ? 'var(--iron-cream)' : 'var(--iron-muted)' }
+
+  /* hover helpers */
+  const linkEnter = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.color = '#E07A5F'
+    e.currentTarget.style.transform = 'translateX(4px)'
+  }
+  const linkLeave = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.color = 'rgba(255,255,255,0.65)'
+    e.currentTarget.style.transform = 'translateX(0)'
+  }
+  const linkLeaveWhite = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.color = '#fff'
+    e.currentTarget.style.transform = 'translateX(0)'
+  }
+
+  /* ── shared link style ── */
+  const linkStyle: React.CSSProperties = {
+    fontFamily: 'var(--font-body)',
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.65)',
+    lineHeight: 2.2,
+    display: 'block',
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
+    textAlign: 'left',
+    textDecoration: 'none',
+    transition: 'color 0.25s ease, transform 0.25s ease',
+  }
+
+  const headingLinkStyle: React.CSSProperties = {
+    ...linkStyle,
+    color: '#fff',
+    fontWeight: 600,
+  }
 
   return (
-    <footer style={{ background: '#080808', position: 'relative', overflow: 'hidden', borderTop: '1px solid var(--iron-border)' }}>
+    <footer
+      ref={footerRef}
+      style={{
+        background: '#111111',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* ── Grid pattern background ── */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: 'none',
+          backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(gridSvg)}")`,
+          backgroundSize: '80px 80px',
+        }}
+      />
 
-      {/* Grid background */}
-      <div style={{
-        position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
-        backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(gridSvg)}")`,
-        backgroundSize: '80px 80px',
-      }} />
-
-      {/* Info row */}
-      <div className="footer-info-grid" style={{ position: 'relative', zIndex: 1, padding: 'clamp(40px,5vw,64px) clamp(24px,5vw,64px) clamp(36px,4vw,56px)' }}>
+      {/* ── 4-Column Info Grid ── */}
+      <div
+        className="footer-info-grid"
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          padding: 'clamp(48px, 6vw, 80px) clamp(28px, 5vw, 72px) clamp(40px, 5vw, 64px)',
+        }}
+      >
+        {/* Column 1 – Navigation */}
         <div>
-          {NAV_COL1.map((l) => (
-            <button key={l} style={{ ...muted, fontWeight: l === 'Order Now' ? 700 : 400, color: l === 'Order Now' ? 'var(--iron-cream)' : 'var(--iron-muted)' }}
-              onClick={() => l === 'Order Now' ? scrollTo('order') : undefined}
-              onMouseOver={(e) => hover(e, true)} onMouseOut={(e) => hover(e, false)}
-            >{l}</button>
+          {NAV_LINKS.map((link, i) => (
+            <button
+              key={link}
+              style={i === 0 ? headingLinkStyle : linkStyle}
+              onMouseEnter={i === 0 ? (e) => { e.currentTarget.style.color = '#E07A5F'; e.currentTarget.style.transform = 'translateX(4px)' } : linkEnter}
+              onMouseLeave={i === 0 ? linkLeaveWhite : linkLeave}
+            >
+              {link}
+            </button>
           ))}
         </div>
+
+        {/* Column 2 – Account */}
         <div>
-          {NAV_COL2.map((l) => <button key={l} style={muted} onMouseOver={(e) => hover(e, true)} onMouseOut={(e) => hover(e, false)}>{l}</button>)}
+          {ACCOUNT_LINKS.map((link) => (
+            <button
+              key={link}
+              style={linkStyle}
+              onMouseEnter={linkEnter}
+              onMouseLeave={linkLeave}
+            >
+              {link}
+            </button>
+          ))}
         </div>
-        <div>
-          {CONTACT_LINES.map((l) => <span key={l} style={{ ...muted, cursor: 'default' }}>{l}</span>)}
-        </div>
-        <div>
-          {SOCIAL.map((l) => <button key={l} style={muted} onMouseOver={(e) => hover(e, true)} onMouseOut={(e) => hover(e, false)}>{l}</button>)}
+
+        {/* Column 3 – Social Media */}
+        <div style={{ textAlign: 'right' }}>
+          {SOCIAL_LINKS.map((link) => (
+            <button
+              key={link}
+              style={{ ...linkStyle, textAlign: 'right', marginLeft: 'auto' }}
+              onMouseEnter={linkEnter}
+              onMouseLeave={linkLeave}
+            >
+              {link}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Wordmark row */}
-      <div style={{ position: 'relative', zIndex: 1, padding: '0 clamp(12px,2vw,32px)', overflow: 'hidden' }}>
-        {/* Orange glow */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-          width: '80%', height: 220,
-          background: 'radial-gradient(ellipse 70% 100% at 50% 100%, rgba(232,80,26,0.28) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
+      {/* ── Giant Brand Name ── */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          padding: '0 clamp(16px, 2vw, 40px)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Orange glow from bottom */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '90%',
+            height: 260,
+            background:
+              'radial-gradient(ellipse 60% 100% at 50% 100%, rgba(224,122,95,0.30) 0%, rgba(224,122,95,0.12) 30%, transparent 70%)',
+            pointerEvents: 'none',
+          }}
+        />
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16 }}>
-          <h2 style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(72px, 17vw, 240px)',
-            lineHeight: 0.82,
-            color: 'var(--iron-cream)',
-            letterSpacing: '0.01em',
-            userSelect: 'none',
-          }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            gap: 16,
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(72px, 17vw, 240px)',
+              lineHeight: 0.82,
+              color: 'var(--iron-cream)',
+              letterSpacing: '0.01em',
+              fontWeight: 700,
+              userSelect: 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
             IRON<span style={{ color: 'var(--iron-orange)' }}>PLATE</span>™
           </h2>
 
-          <button onClick={scrollToTop} aria-label="Scroll to top" style={{
-            width: 64, height: 64, borderRadius: '50%',
-            background: 'var(--iron-orange)', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, marginBottom: 20,
-            transition: 'transform 0.2s ease, background 0.2s ease',
-          }}
-            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.background = '#D04415' }}
-            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = 'var(--iron-orange)' }}
+          {/* Scroll-to-top button */}
+          <button
+            onClick={scrollToTop}
+            aria-label="Scroll to top"
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              background: '#E07A5F',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              marginBottom: 24,
+              transition: 'transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease',
+              boxShadow: '0 4px 24px rgba(224,122,95,0.3)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.12)'
+              e.currentTarget.style.background = '#D06A4F'
+              e.currentTarget.style.boxShadow = '0 6px 32px rgba(224,122,95,0.5)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)'
+              e.currentTarget.style.background = '#E07A5F'
+              e.currentTarget.style.boxShadow = '0 4px 24px rgba(224,122,95,0.3)'
+            }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="19" x2="12" y2="5" /><polyline points="5 12 12 5 19 12" />
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="19" x2="12" y2="5" />
+              <polyline points="5 12 12 5 19 12" />
             </svg>
           </button>
         </div>
       </div>
 
-      {/* Bottom strip */}
-      <div style={{
-        position: 'relative', zIndex: 1,
-        borderTop: '1px solid var(--iron-border)',
-        padding: '18px clamp(24px,5vw,64px)',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12,
-      }}>
-        <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--iron-muted)' }}>
-          © 2025 IRONPLATE™ · Shoreditch, London · All rights reserved
+      {/* ── Bottom Sub-Footer ── */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          padding: '20px clamp(28px, 5vw, 72px)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 16,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 13,
+            color: 'rgba(255,255,255,0.4)',
+            letterSpacing: '0.02em',
+          }}
+        >
+          © All rights reserved 2026
         </span>
-        <div style={{ display: 'flex', gap: 24 }}>
-          {['Terms & Conditions', 'Privacy Policy'].map((t) => (
-            <button key={t} style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--iron-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'color 0.2s ease' }}
-              onMouseOver={(e) => (e.currentTarget.style.color = 'var(--iron-cream)')}
-              onMouseOut={(e) => (e.currentTarget.style.color = 'var(--iron-muted)')}
-            >{t}</button>
+        <div style={{ display: 'flex', gap: 32 }}>
+          {['Terms and Conditions', 'Privacy Policy'].map((text) => (
+            <button
+              key={text}
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 13,
+                color: 'rgba(255,255,255,0.4)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                letterSpacing: '0.02em',
+                transition: 'color 0.25s ease',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#E07A5F')}
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')
+              }
+            >
+              {text}
+            </button>
           ))}
         </div>
       </div>

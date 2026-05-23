@@ -86,8 +86,9 @@ export default function DishShowcase() {
           display: 'flex',
           width: '100%',
           minHeight: '100vh',
-          alignItems: 'center',
-          padding: 'clamp(80px, 8vw, 120px) clamp(24px, 5vw, 80px)',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          padding: 'clamp(100px, 15vh, 150px) clamp(32px, 5vw, 80px) clamp(80px, 8vw, 120px)',
           gap: 48,
           flexWrap: 'wrap',
           position: 'relative',
@@ -109,7 +110,7 @@ export default function DishShowcase() {
             <h2
               style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(56px, 7vw, 100px)',
+                fontSize: 'clamp(72px, 9vw, 120px)',
                 lineHeight: 0.9,
                 color: 'var(--iron-cream)',
                 letterSpacing: '0.02em',

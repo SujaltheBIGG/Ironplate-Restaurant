@@ -4,6 +4,7 @@ import Image from 'next/image'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MENU } from '@/lib/data'
+import TextReveal from '@/components/TextReveal'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -37,6 +38,7 @@ export default function MenuGrid() {
 
   return (
     <section
+      id="menu"
       ref={sectionRef}
       style={{
         background: 'var(--iron-bg)',
@@ -45,18 +47,22 @@ export default function MenuGrid() {
     >
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 64 }}>
-        <p className="section-label" style={{ marginBottom: 16 }}>— FULL MENU —</p>
-        <h2
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(48px, 8vw, 80px)',
-            color: 'var(--iron-cream)',
-            letterSpacing: 4,
-            lineHeight: 1,
-          }}
-        >
-          PICK YOUR <span style={{ color: 'var(--iron-orange)' }}>FUEL</span>
-        </h2>
+        <TextReveal delay={0}>
+          <p className="section-label" style={{ marginBottom: 16 }}>— FULL MENU —</p>
+        </TextReveal>
+        <TextReveal delay={0.1}>
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(48px, 8vw, 80px)',
+              color: 'var(--iron-cream)',
+              letterSpacing: 4,
+              lineHeight: 1,
+            }}
+          >
+            PICK YOUR <span style={{ color: 'var(--iron-orange)' }}>FUEL</span>
+          </h2>
+        </TextReveal>
       </div>
 
       {/* Grid */}

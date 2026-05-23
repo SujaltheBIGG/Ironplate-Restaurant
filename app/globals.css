@@ -85,6 +85,24 @@ body::before {
   margin: 0;
 }
 
+.footer-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: clamp(24px, 4vw, 48px);
+}
+
+@media (max-width: 768px) {
+  .footer-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--iron-bg); }
 ::-webkit-scrollbar-thumb { background: var(--iron-orange); border-radius: 2px; }
@@ -97,4 +115,10 @@ body::before {
 @keyframes ingredient-fade {
   0% { opacity: 0; }
   100% { opacity: 1; }
+}
+
+.hero-canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }

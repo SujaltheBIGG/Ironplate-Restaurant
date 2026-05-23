@@ -2,15 +2,23 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import TextReveal from '@/components/TextReveal'
 /* Social icons via inline SVG — lucide v1 removed branded icons */
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function OrderCTA() {
   const sectionRef = useRef<HTMLElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Ensure video plays and set speed
+      if (videoRef.current) {
+        videoRef.current.playbackRate = 1.5
+        videoRef.current.play().catch(err => console.log('Video autoplay error:', err))
+      }
+
       gsap.fromTo(
         '.cta-headline',
         { scale: 0.92, opacity: 0 },
@@ -85,13 +93,39 @@ export default function OrderCTA() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'radial-gradient(ellipse 80% 50% at 50% 120%, rgba(232,80,26,0.2) 0%, transparent 70%), var(--iron-bg)',
           padding: 'clamp(80px, 10vw, 120px) clamp(24px, 5vw, 48px)',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
-        <hr className="rule-hot" style={{ position: 'absolute', top: 0, left: 0, right: 0 }} />
+        <video
+          ref={videoRef}
+          src="/section-video.mov"
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.98,
+            zIndex: 0,
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(ellipse 80% 50% at 50% 120%, rgba(232,80,26,0.2) 0%, transparent 70%), rgba(13,13,13,0.3)',
+            zIndex: 1,
+            pointerEvents: 'none',
+          }}
+        />
+        <hr className="rule-hot" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2 }} />
 
         <div
           style={{
@@ -102,47 +136,57 @@ export default function OrderCTA() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: 24,
+            position: 'relative',
+            zIndex: 3,
           }}
         >
-          <p className="section-label">READY TO FUEL UP?</p>
+          <TextReveal delay={0}>
+            <p className="section-label">READY TO FUEL UP?</p>
+          </TextReveal>
 
-          <h2
-            className="cta-headline"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(80px, 15vw, 180px)',
-              color: 'var(--iron-cream)',
-              letterSpacing: 8,
-              lineHeight: 0.9,
-              display: 'block',
-            }}
-          >
-            ORDER<br />
-            <span style={{ color: 'var(--iron-orange)' }}>NOW</span>
-          </h2>
+          <TextReveal delay={0.1}>
+            <h2
+              className="cta-headline"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(80px, 15vw, 180px)',
+                color: 'var(--iron-cream)',
+                letterSpacing: 8,
+                lineHeight: 0.9,
+                display: 'block',
+              }}
+            >
+              ORDER<br />
+              <span style={{ color: 'var(--iron-orange)' }}>NOW</span>
+            </h2>
+          </TextReveal>
 
           <div className="cta-sub" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 18,
-                color: 'var(--iron-muted)',
-                lineHeight: 1.6,
-              }}
-            >
-              Delivering to Shoreditch · Dalston · Hackney · Bethnal Green · Aldgate
-            </p>
+            <TextReveal delay={0.2}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 18,
+                  color: 'var(--iron-muted)',
+                  lineHeight: 1.6,
+                }}
+              >
+                Delivering to Shoreditch · Dalston · Hackney · Bethnal Green · Aldgate
+              </p>
+            </TextReveal>
 
-            <p
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: 12,
-                color: 'var(--iron-muted)',
-                letterSpacing: 2,
-              }}
-            >
-              Min. 40G PROTEIN ON EVERY ITEM · Ready in 25 min · £1.99 delivery
-            </p>
+            <TextReveal delay={0.3}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 12,
+                  color: 'var(--iron-muted)',
+                  letterSpacing: 2,
+                }}
+              >
+                Min. 40G PROTEIN ON EVERY ITEM · Ready in 25 min · £1.99 delivery
+              </p>
+            </TextReveal>
           </div>
 
           <div className="cta-button-wrap">
