@@ -9,28 +9,49 @@ export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [imagesLoaded, setImagesLoaded] = useState(false)
+  const [enableAnimation, setEnableAnimation] = useState(false) // Disable animation by default for performance
+  const [isMobile, setIsMobile] = useState(false)
   const totalFrames = 307
   const startFrameNumber = 86400
   const imagesRef = useRef<HTMLImageElement[]>([])
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const scrollToOrder = () =>
     document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })
 
   // Lazy load frames on demand instead of preloading all
   useEffect(() => {
+    // Only load frames if animation is enabled
+    if (!enableAnimation) return
+
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
     const loadImage = (index: number): HTMLImageElement => {
       const frameNumber = (startFrameNumber + index).toString().padStart(8, '0')
       const img = new Image()
+      // Safari optimization: use decoding attribute for better performance
+      img.decoding = isSafari ? 'sync' : 'async'
       img.src = `/jpeg-frames/Website Animation${frameNumber}.jpg`
       return img
     }
 
-    // Preload first 10 frames for immediate display, rest will load on demand
+    // Preload only 3 frames for immediate display, rest will load on demand
     const initialLoad = async () => {
       const loadedImages: HTMLImageElement[] = []
       const promises: Promise<void>[] = []
 
-      for (let i = 0; i < Math.min(10, totalFrames); i++) {
+      // Load only 3 frames initially for fastest possible load
+      const initialFrames = 3
+
+      for (let i = 0; i < Math.min(initialFrames, totalFrames); i++) {
         const img = loadImage(i)
         const promise = new Promise<void>((resolve) => {
           img.onload = () => resolve()
@@ -41,9 +62,9 @@ export default function HeroSection() {
       }
 
       await Promise.all(promises)
-      
+
       // Fill remaining slots with empty images that will load on demand
-      for (let i = 10; i < totalFrames; i++) {
+      for (let i = initialFrames; i < totalFrames; i++) {
         loadedImages.push(loadImage(i))
       }
 
@@ -52,28 +73,39 @@ export default function HeroSection() {
     }
 
     initialLoad()
-  }, [totalFrames, startFrameNumber])
+  }, [totalFrames, startFrameNumber, enableAnimation])
 
   useEffect(() => {
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
     const ctx = gsap.context(() => {
       gsap.set(['.hero-badge', '.hero-h1', '.hero-macros', '.hero-sub', '.hero-cta'], {
         opacity: 0,
         y: 30,
       })
-      gsap.to('.hero-badge',  { opacity: 1, y: 0, duration: 0.5, delay: 0.1,  ease: 'power2.out' })
-      gsap.to('.hero-h1',     { opacity: 1, y: 0, duration: 0.8, delay: 0.25, ease: 'power3.out' })
-      gsap.to('.hero-macros', { opacity: 1, y: 0, duration: 0.5, delay: 0.5,  ease: 'power2.out' })
-      gsap.to('.hero-sub',    { opacity: 1, y: 0, duration: 0.5, delay: 0.65, ease: 'power2.out' })
-      gsap.to('.hero-cta',    { opacity: 1, y: 0, duration: 0.5, delay: 0.8,  ease: 'power2.out' })
+      // Safari optimization: use simpler easing and shorter durations
+      const ease = isSafari ? 'power1.out' : 'power2.out'
+      const easeHero = isSafari ? 'power2.out' : 'power3.out'
+      
+      gsap.to('.hero-badge',  { opacity: 1, y: 0, duration: 0.5, delay: 0.1,  ease })
+      gsap.to('.hero-h1',     { opacity: 1, y: 0, duration: 0.8, delay: 0.25, ease: easeHero })
+      gsap.to('.hero-macros', { opacity: 1, y: 0, duration: 0.5, delay: 0.5,  ease })
+      gsap.to('.hero-sub',    { opacity: 1, y: 0, duration: 0.5, delay: 0.65, ease })
+      gsap.to('.hero-cta',    { opacity: 1, y: 0, duration: 0.5, delay: 0.8,  ease })
     }, sectionRef)
     return () => ctx.revert()
   }, [])
 
   useEffect(() => {
-    if (!sectionRef.current || !imagesLoaded || !canvasRef.current) return
+    // Skip canvas setup if animation is disabled
+    if (!enableAnimation || !sectionRef.current || !imagesLoaded || !canvasRef.current) return
 
     const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true })
+    // Safari optimization: avoid desynchronized mode, use alpha: false for better performance
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+    const ctx = canvas.getContext('2d', { 
+      alpha: false,
+      desynchronized: !isSafari // Disable desynchronized for Safari
+    })
     if (!ctx) return
 
     const content = sectionRef.current.querySelector('.hero-content') as HTMLDivElement
@@ -82,7 +114,7 @@ export default function HeroSection() {
 
     // Force canvas drawing buffer to match high-density displays
     const resizeCanvas = () => {
-      const dpr = window.devicePixelRatio || 1
+      const dpr = isSafari ? Math.min(window.devicePixelRatio || 1, 2) : (window.devicePixelRatio || 1) // Cap DPR for Safari
       const displayWidth = canvas.clientWidth || window.innerWidth
       const displayHeight = canvas.clientHeight || window.innerHeight
 
@@ -96,89 +128,93 @@ export default function HeroSection() {
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
 
+    // DISABLED: ScrollTrigger animations for performance
+    // These complex scroll-based animations are causing significant performance issues
+    // on both Safari and Chrome. Disabling them to improve loading speed.
+
     // Create ScrollTrigger for text fade with exact settings
-    if (content) {
-      gsap.to(content, {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: 'top -30%',
-          scrub: true,
-        },
-        opacity: 0,
-        pointerEvents: 'none',
-      })
-    }
+    // if (content) {
+    //   gsap.to(content, {
+    //     scrollTrigger: {
+    //       trigger: sectionRef.current,
+    //       start: 'top top',
+    //       end: 'top -30%',
+    //       scrub: true,
+    //     },
+    //     opacity: 0,
+    //     pointerEvents: 'none',
+    //   })
+    // }
 
     // Create ScrollTrigger for ingredients fade-in when burger is fully exploded
-    if (ingredientsAnnotations) {
-      gsap.to(ingredientsAnnotations, {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: '+=3000',
-          scrub: true,
-          onUpdate: (self) => {
-            // Fade in ingredients starting at 15% progress, fully visible by 40%
-            // Gradual fade out starting at 60% progress, fully gone by 75%
-            if (self.progress < 0.15) {
-              ingredientsAnnotations.style.opacity = '0'
-              ingredientsAnnotations.style.pointerEvents = 'none'
-            } else if (self.progress >= 0.15 && self.progress < 0.40) {
-              // Fade in
-              const fadeProgress = (self.progress - 0.15) * 4
-              ingredientsAnnotations.style.opacity = Math.min(fadeProgress, 1).toString()
-              ingredientsAnnotations.style.pointerEvents = 'auto'
-            } else if (self.progress >= 0.40 && self.progress < 0.60) {
-              // Fully visible
-              ingredientsAnnotations.style.opacity = '1'
-              ingredientsAnnotations.style.pointerEvents = 'auto'
-            } else if (self.progress >= 0.60 && self.progress < 0.75) {
-              // Fade out
-              const fadeProgress = 1 - ((self.progress - 0.60) * 6.67)
-              ingredientsAnnotations.style.opacity = Math.max(fadeProgress, 0).toString()
-              ingredientsAnnotations.style.pointerEvents = 'auto'
-            } else {
-              // Fully gone
-              ingredientsAnnotations.style.opacity = '0'
-              ingredientsAnnotations.style.pointerEvents = 'none'
-            }
-          },
-        },
-      })
-    }
+    // if (ingredientsAnnotations) {
+    //   gsap.to(ingredientsAnnotations, {
+    //     scrollTrigger: {
+    //       trigger: sectionRef.current,
+    //       start: 'top top',
+    //       end: '+=3000',
+    //       scrub: true,
+    //       onUpdate: (self) => {
+    //         // Fade in ingredients starting at 15% progress, fully visible by 40%
+    //         // Gradual fade out starting at 60% progress, fully gone by 75%
+    //         if (self.progress < 0.15) {
+    //           ingredientsAnnotations.style.opacity = '0'
+    //           ingredientsAnnotations.style.pointerEvents = 'none'
+    //         } else if (self.progress >= 0.15 && self.progress < 0.40) {
+    //           // Fade in
+    //           const fadeProgress = (self.progress - 0.15) * 4
+    //           ingredientsAnnotations.style.opacity = Math.min(fadeProgress, 1).toString()
+    //           ingredientsAnnotations.style.pointerEvents = 'auto'
+    //         } else if (self.progress >= 0.40 && self.progress < 0.60) {
+    //           // Fully visible
+    //           ingredientsAnnotations.style.opacity = '1'
+    //           ingredientsAnnotations.style.pointerEvents = 'auto'
+    //         } else if (self.progress >= 0.60 && self.progress < 0.75) {
+    //           // Fade out
+    //           const fadeProgress = 1 - ((self.progress - 0.60) * 6.67)
+    //           ingredientsAnnotations.style.opacity = Math.max(fadeProgress, 0).toString()
+    //           ingredientsAnnotations.style.pointerEvents = 'auto'
+    //         } else {
+    //           // Fully gone
+    //           ingredientsAnnotations.style.opacity = '0'
+    //           ingredientsAnnotations.style.pointerEvents = 'none'
+    //         }
+    //       },
+    //     },
+    //   })
+    // }
 
     // Create ScrollTrigger for product description fade-in after ingredients fade out
-    if (productDescription) {
-      gsap.to(productDescription, {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: '+=3000',
-          scrub: true,
-          onUpdate: (self) => {
-            // Fade in product description starting at 75% progress, fully visible by 90%
-            if (self.progress < 0.75) {
-              productDescription.style.opacity = '0'
-              productDescription.style.visibility = 'hidden'
-              productDescription.style.transform = 'translateY(-50%) translateY(30px)'
-            } else if (self.progress >= 0.75 && self.progress < 0.90) {
-              // Fade in
-              const fadeProgress = (self.progress - 0.75) * 6.67
-              const translateY = 30 * (1 - fadeProgress)
-              productDescription.style.opacity = Math.min(fadeProgress, 1).toString()
-              productDescription.style.visibility = 'visible'
-              productDescription.style.transform = `translateY(-50%) translateY(${translateY}px)`
-            } else {
-              // Fully visible
-              productDescription.style.opacity = '1'
-              productDescription.style.visibility = 'visible'
-              productDescription.style.transform = 'translateY(-50%) translateY(0)'
-            }
-          },
-        },
-      })
-    }
+    // if (productDescription) {
+    //   gsap.to(productDescription, {
+    //     scrollTrigger: {
+    //       trigger: sectionRef.current,
+    //       start: 'top top',
+    //       end: '+=3000',
+    //       scrub: true,
+    //       onUpdate: (self) => {
+    //         // Fade in product description starting at 75% progress, fully visible by 90%
+    //         if (self.progress < 0.75) {
+    //           productDescription.style.opacity = '0'
+    //           productDescription.style.visibility = 'hidden'
+    //           productDescription.style.transform = 'translateY(-50%) translateY(30px)'
+    //         } else if (self.progress >= 0.75 && self.progress < 0.90) {
+    //           // Fade in
+    //           const fadeProgress = (self.progress - 0.75) * 6.67
+    //           const translateY = 30 * (1 - fadeProgress)
+    //           productDescription.style.opacity = Math.min(fadeProgress, 1).toString()
+    //           productDescription.style.visibility = 'visible'
+    //           productDescription.style.transform = `translateY(-50%) translateY(${translateY}px)`
+    //         } else {
+    //           // Fully visible
+    //           productDescription.style.opacity = '1'
+    //           productDescription.style.visibility = 'visible'
+    //           productDescription.style.transform = 'translateY(-50%) translateY(0)'
+    //         }
+    //       },
+    //     },
+    //   })
+    // }
 
     // Create ScrollTrigger for pinned animation
     const scrollTrigger = ScrollTrigger.create({
@@ -186,31 +222,44 @@ export default function HeroSection() {
       start: 'top top',
       end: '+=3000',
       pin: true,
-      scrub: 1,
+      scrub: isSafari ? 3 : 2, // Even slower scrub for better performance
       onUpdate: (self) => {
-        const progress = self.progress
-
-        // Calculate current frame based on scroll progress
-        const frameIndex = Math.min(Math.floor(progress * totalFrames), totalFrames - 1)
-        const currentImage = imagesRef.current[frameIndex]
-
-        if (content) {
-          content.style.transform = `translateY(${progress * -80}px)`
-        }
-
-        // Fade out hero section at the end
-        if (progress > 0.85) {
-          const fadeProgress = (progress - 0.85) * 6.67
-          sectionRef.current!.style.opacity = Math.max(1 - fadeProgress, 0).toString()
-        }
-
-        // Draw current frame to canvas
-        if (currentImage && ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height)
-          ctx.drawImage(currentImage, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1))
+        // Safari optimization: use requestAnimationFrame for smoother rendering
+        if (isSafari) {
+          requestAnimationFrame(() => {
+            const progress = self.progress
+            updateCanvas(progress)
+          })
+        } else {
+          const progress = self.progress
+          updateCanvas(progress)
         }
       },
     })
+
+    const updateCanvas = (progress: number) => {
+      // Calculate current frame based on scroll progress with frame skipping for performance
+      const frameSkip = isSafari ? 3 : 2 // Skip more frames on Safari
+      const frameIndex = Math.min(Math.floor(progress * totalFrames / frameSkip) * frameSkip, totalFrames - 1)
+      const currentImage = imagesRef.current[frameIndex]
+
+      if (content) {
+        content.style.transform = `translateY(${progress * -80}px)`
+      }
+
+      // Fade out hero section at the end
+      if (progress > 0.85) {
+        const fadeProgress = (progress - 0.85) * 6.67
+        sectionRef.current!.style.opacity = Math.max(1 - fadeProgress, 0).toString()
+      }
+
+      // Draw current frame to canvas
+      if (currentImage && ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        const dpr = isSafari ? Math.min(window.devicePixelRatio || 1, 2) : (window.devicePixelRatio || 1)
+        ctx.drawImage(currentImage, 0, 0, canvas.width / dpr, canvas.height / dpr)
+      }
+    }
 
     return () => {
       scrollTrigger.kill()
@@ -231,8 +280,58 @@ export default function HeroSection() {
         zIndex: 1,
       }}
     >
+      {/* Static hero image for fast loading (shown when animation is disabled) */}
+      {!enableAnimation && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'var(--iron-bg)',
+            zIndex: 1,
+          }}
+        >
+          <img
+            src="/jpeg-frames/Website Animation00086400.jpg"
+            alt="IRONPLATE"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center center',
+              opacity: 0.8,
+            }}
+          />
+        </div>
+      )}
+
+      {/* Loading placeholder */}
+      {enableAnimation && !imagesLoaded && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'var(--iron-bg)',
+            zIndex: 10,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 32,
+              color: 'var(--iron-orange)',
+              letterSpacing: 4,
+            }}
+          >
+            IRONPLATE
+          </div>
+        </div>
+      )}
+
       {/* Background canvas with scroll-based animation */}
-      {imagesLoaded && (
+      {enableAnimation && imagesLoaded && (
         <canvas
           ref={canvasRef}
           className="hero-canvas"
@@ -416,24 +515,24 @@ export default function HeroSection() {
         style={{
           position: 'relative',
           zIndex: 4,
-          paddingLeft: 'clamp(32px, 8vw, 120px)',
-          paddingRight: 'clamp(32px, 8vw, 80px)',
+          paddingLeft: 'clamp(20px, 5vw, 120px)',
+          paddingRight: 'clamp(20px, 5vw, 80px)',
           maxWidth: 780,
           willChange: 'transform, opacity',
         }}
       >
         <div className="hero-badge" style={{ marginBottom: 24 }}>
-          <span className="macro-pill">#1 HIGH PROTEIN BURGER · SHOREDITCH, LONDON</span>
+          <span className="macro-pill" style={{ fontSize: 'clamp(10px, 2vw, 12px)', whiteSpace: 'nowrap' }}>#1 HIGH PROTEIN BURGER · SHOREDITCH, LONDON</span>
         </div>
 
         <h1
           className="hero-h1"
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(80px, 13vw, 156px)',
+            fontSize: 'clamp(48px, 10vw, 156px)',
             lineHeight: 0.88,
             letterSpacing: '0.02em',
-            marginBottom: 32,
+            marginBottom: 24,
             color: 'var(--iron-cream)',
           }}
         >

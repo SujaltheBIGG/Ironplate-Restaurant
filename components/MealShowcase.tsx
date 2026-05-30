@@ -31,6 +31,7 @@ export default function MealShowcase() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [direction, setDirection] = useState<'left' | 'right'>('right')
   const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
   const imageContainerRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef(0)
@@ -39,6 +40,13 @@ export default function MealShowcase() {
 
   useEffect(() => {
     setMounted(true)
+    // Detect mobile device
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   const prev = () => {
@@ -101,11 +109,24 @@ export default function MealShowcase() {
     }
   }
 
+  // Parallax effect on mouse move - disabled on mobile for performance
+  const handleMouseMoveParallax = (e: React.MouseEvent) => {
+    if (!imageContainerRef.current || isMobile) return
+    const x = (e.clientX / window.innerWidth - 0.5) * 20
+    const y = (e.clientY / window.innerHeight - 0.5) * 20
+    gsap.to(imageContainerRef.current, {
+      x,
+      y,
+      duration: 0.5,
+      ease: 'power2.out'
+    })
+  }
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Smooth fade-in animation when section comes into view
       gsap.fromTo(sectionRef.current,
-        { 
+        {
           opacity: 0,
           y: 50
         },
@@ -125,7 +146,7 @@ export default function MealShowcase() {
 
       // Initial entrance animation for image
       gsap.fromTo(imageContainerRef.current,
-        { 
+        {
           opacity: 0,
           scale: 1.2,
           filter: 'blur(10px)'
@@ -143,22 +164,43 @@ export default function MealShowcase() {
           }
         }
       )
+
+      // Scroll-based image switching with pinning for trackpad swipe
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: 'top top',
+        end: '+=200%',
+        scrub: 1,
+        pin: true,
+        pinSpacing: true,
+        onUpdate: (self) => {
+          const progress = self.progress
+          // Distribute progress evenly across all 3 images
+          const segmentSize = 1 / meals.length
+          const newIndex = Math.min(Math.floor(progress / segmentSize), meals.length - 1)
+          if (newIndex >= 0 && newIndex < meals.length && newIndex !== activeIndex) {
+            setDirection(newIndex > activeIndex ? 'right' : 'left')
+            setActiveIndex(newIndex)
+          }
+        }
+      })
+
     }, sectionRef)
     return () => ctx.revert()
   }, [])
 
   useEffect(() => {
-    if (imageContainerRef.current) {
-      // Slide animation based on direction
+    if (imageContainerRef.current && !isMobile) {
+      // Slide animation based on direction - disabled on mobile for performance
       const startX = direction === 'right' ? 100 : -100
       gsap.fromTo(imageContainerRef.current,
-        { 
+        {
           x: startX,
           opacity: 0,
           scale: 1.1,
           filter: 'blur(5px)'
         },
-        { 
+        {
           x: 0,
           opacity: 1,
           scale: 1,
@@ -168,20 +210,7 @@ export default function MealShowcase() {
         }
       )
     }
-  }, [activeIndex, direction])
-
-  // Parallax effect on mouse move
-  const handleMouseMoveParallax = (e: React.MouseEvent) => {
-    if (!imageContainerRef.current) return
-    const x = (e.clientX / window.innerWidth - 0.5) * 20
-    const y = (e.clientY / window.innerHeight - 0.5) * 20
-    gsap.to(imageContainerRef.current, {
-      x,
-      y,
-      duration: 0.5,
-      ease: 'power2.out'
-    })
-  }
+  }, [activeIndex, direction, isMobile])
 
   return (
     <section
@@ -219,8 +248,12 @@ export default function MealShowcase() {
           src={meals[activeIndex].image}
           alt={meals[activeIndex].title}
           fill
-          style={{ objectFit: 'cover' }}
+          style={{
+            objectFit: 'cover',
+            objectPosition: 'center center'
+          }}
           priority
+          quality={isMobile ? 60 : 75}
         />
       </div>
 
@@ -234,8 +267,8 @@ export default function MealShowcase() {
         }}
       />
 
-      {/* Animated particles */}
-      {mounted && (
+      {/* Animated particles - disabled on mobile for performance */}
+      {mounted && !isMobile && (
         <div
           style={{
             position: 'absolute',

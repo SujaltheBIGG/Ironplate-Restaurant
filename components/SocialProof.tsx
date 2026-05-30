@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Star } from 'lucide-react'
 import { REVIEWS } from '@/lib/data'
+import TextReveal from '@/components/TextReveal'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -153,23 +154,23 @@ export default function SocialProof() {
           background: 'var(--iron-border)',
         }}
       >
-        {REVIEWS.map((review) => (
-          <div
-            key={review.initials}
-            className="review-card"
-            style={{
-              background: 'var(--iron-surface)',
-              border: '1px solid var(--iron-border)',
-              borderLeft: '3px solid var(--iron-orange)',
-              padding: '28px 32px',
-            }}
-          >
-            {/* Stars */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={16} fill="#E8501A" color="#E8501A" />
-              ))}
-            </div>
+        {REVIEWS.map((review, i) => (
+          <TextReveal key={review.initials} delay={i * 0.1}>
+            <div
+              className="review-card"
+              style={{
+                background: 'var(--iron-surface)',
+                border: '1px solid var(--iron-border)',
+                borderLeft: '3px solid var(--iron-orange)',
+                padding: '28px 32px',
+              }}
+            >
+              {/* Stars */}
+              <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={16} fill="#E8501A" color="#E8501A" />
+                ))}
+              </div>
 
             {/* Quote */}
             <p
@@ -233,6 +234,7 @@ export default function SocialProof() {
               </div>
             </div>
           </div>
+          </TextReveal>
         ))}
       </div>
     </section>

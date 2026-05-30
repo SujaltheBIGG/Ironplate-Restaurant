@@ -79,6 +79,9 @@ export default function Footer() {
           position: 'relative',
           zIndex: 1,
           padding: 'clamp(48px, 6vw, 80px) clamp(28px, 5vw, 72px) clamp(40px, 5vw, 64px)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+          gap: 24,
         }}
       >
         {/* Column 1 – Navigation */}
@@ -124,6 +127,35 @@ export default function Footer() {
         </div>
       </div>
 
+      {/* Mobile: Social links inline with nav */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          padding: '0 clamp(28px, 5vw, 72px) clamp(24px, 4vw, 40px)',
+          display: 'none',
+          gap: 16,
+          flexWrap: 'wrap',
+        }}
+        className="mobile-social-links"
+      >
+        {SOCIAL_LINKS.map((link) => (
+          <button
+            key={link}
+            style={{
+              ...linkStyle,
+              fontSize: 14,
+              display: 'inline-block',
+              marginRight: 16,
+            }}
+            onMouseEnter={linkEnter}
+            onMouseLeave={linkLeave}
+          >
+            {link}
+          </button>
+        ))}
+      </div>
+
       {/* ── Giant Brand Name ── */}
       <div
         style={{
@@ -159,7 +191,7 @@ export default function Footer() {
           <h2
             style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(72px, 17vw, 240px)',
+              fontSize: 'clamp(36px, 10vw, 240px)',
               lineHeight: 0.82,
               color: 'var(--iron-cream)',
               letterSpacing: '0.01em',
@@ -176,8 +208,8 @@ export default function Footer() {
             onClick={scrollToTop}
             aria-label="Scroll to top"
             style={{
-              width: 72,
-              height: 72,
+              width: 'clamp(48px, 8vw, 72px)',
+              height: 'clamp(48px, 8vw, 72px)',
               borderRadius: '50%',
               background: '#E07A5F',
               border: 'none',
@@ -202,8 +234,8 @@ export default function Footer() {
             }}
           >
             <svg
-              width="22"
-              height="22"
+              width="clamp(14px, 2.5vw, 22px)"
+              height="clamp(14px, 2.5vw, 22px)"
               viewBox="0 0 24 24"
               fill="none"
               stroke="white"

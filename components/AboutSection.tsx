@@ -43,10 +43,11 @@ export default function AboutSection() {
         { opacity: 1, y: 0, duration: 0.8, delay: 0.1, ease: 'power3.out',
           scrollTrigger: { trigger: '.about-origin', start: 'top 75%' } })
 
-      gsap.fromTo('.about-body p',
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, delay: 0.3, ease: 'power2.out',
-          scrollTrigger: { trigger: '.about-origin', start: 'top 75%' } })
+      // Disabled body paragraph animations for performance - using TextReveal instead
+      // gsap.fromTo('.about-body p',
+      //   { opacity: 0, y: 24 },
+      //   { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, delay: 0.3, ease: 'power2.out',
+      //     scrollTrigger: { trigger: '.about-origin', start: 'top 75%' } })
 
 
 
@@ -106,29 +107,33 @@ export default function AboutSection() {
           </TextReveal>
 
           <div className="about-body" style={{ maxWidth: 640 }}>
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 17,
-              color: 'var(--iron-muted)',
-              lineHeight: 1.8,
-              marginBottom: 24,
-            }}>
-              IRONPLATE™ was born in 2021 in a 12-seat kitchen off Bethnal Green Road.
-              Chef Marcus Webb spent three years testing smash techniques before serving
-              a single burger to the public.
-            </p>
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 17,
-              color: 'var(--iron-muted)',
-              lineHeight: 1.8,
-            }}>
-              The rule was simple: every item on the menu had to hit 40g of protein or
-              it did not go on the board. No compromises on flavour. No shortcuts on
-              sourcing. Just honest, high-performance food built for people who train hard.
-              Today we serve over 3,800 meals a week across East London — and the
-              rule has never changed.
-            </p>
+            <TextReveal delay={0.2}>
+              <p style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 17,
+                color: 'var(--iron-muted)',
+                lineHeight: 1.8,
+                marginBottom: 24,
+              }}>
+                IRONPLATE™ was born in 2021 in a 12-seat kitchen off Bethnal Green Road.
+                Chef Marcus Webb spent three years testing smash techniques before serving
+                a single burger to the public.
+              </p>
+            </TextReveal>
+            <TextReveal delay={0.3}>
+              <p style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 17,
+                color: 'var(--iron-muted)',
+                lineHeight: 1.8,
+              }}>
+                The rule was simple: every item on the menu had to hit 40g of protein or
+                it did not go on the board. No compromises on flavour. No shortcuts on
+                sourcing. Just honest, high-performance food built for people who train hard.
+                Today we serve over 3,800 meals a week across East London — and the
+                rule has never changed.
+              </p>
+            </TextReveal>
           </div>
 
 
